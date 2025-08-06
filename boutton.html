@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔒 Galería Premium</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .lock-icon {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+
+        /* Página principal */
+        .main-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .preview-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .image-preview {
+            width: 100%;
+            max-height: 300px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            filter: blur(12px);
+            opacity: 0.6;
+            transition: all 0.3s ease;
+            object-fit: cover;
+        }
+
+        .preview-overlay {
+            position: relative;
+            display: inline-block;
+        }
+
+        .preview-overlay::after {
+            content: '🔒';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+            z-index: 1;
+        }
+
+        .unlock-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 20px 50px;
+            font-size: 20px;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .unlock-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.6);
+        }
+
+        /* Galería */
+        .gallery-page {
+            display: none;
+            padding: 20px;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .media-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+
+        .media-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .media-preview {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: all 0.3s ease;
+        }
+
+        .media-preview.blurred {
+            filter: blur(8px);
+            opacity: 0.6;
+        }
+
+        .media-preview-container {
+            width: 100%;
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .media-preview.free {
+            filter: none;
+            opacity: 1;
+        }
+
+        .free-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(45deg, #11998e, #38ef7d);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            box-shadow: 0 2px 10px rgba(17, 153, 142, 0.4);
+            z-index: 2;
+        }
+
+        .premium-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 32px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+            z-index: 1;
+        }
+
+        .media-info {
+            padding: 15px;
+            text-align: center;
+        }
+
+        .media-type {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .media-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Modal de pago */
+        .payment-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .modal-message {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .price-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .price {
+            font-size: 32px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .payment-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .pay-btn {
+            background: linear-gradient(45deg, #11998e, #38ef7d);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .pay-btn.telegram {
+            background: linear-gradient(45deg, #4A00E0, #8E2DE2);
+        }
+
+        .pay-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(17, 153, 142, 0.4);
+        }
+
+        .pay-btn.telegram:hover {
+            box-shadow: 0 8px 25px rgba(74, 0, 224, 0.4);
+        }
+
+        .close-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Modal de vídeo */
+        .video-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-modal-content {
+            width: 90%;
+            max-width: 800px;
+            position: relative;
+        }
+
+        .video-modal-content video {
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        .close-video-btn {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .close-video-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+            }
+            
+            .payment-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Página principal -->
+    <div id="mainPage">
+        <div class="header">
+            <div class="lock-icon">🔒</div>
+            <div class="title">Galería Premium</div>
+            <div class="subtitle">Descubre nuestro contenido exclusivo</div>
+        </div>
+
+        <div class="main-page">
+            <div class="preview-section">
+                <div class="preview-overlay">
+                    <img src="https://raw.githubusercontent.com/[TU_USUARIO]/[TU_REPO]/main/GIF.gif" 
+                         alt="Contenido Premium" class="image-preview">
+                </div>
+                <p style="margin-top: 15px; opacity: 0.2; font-size: 16px;">
+                    ✨ Contenido Premium Exclusivo
+                </p>
+            </div>
+
+            <button class="unlock-btn" onclick="showGallery()">
+                🎨 Acceder a la galería
+            </button>
+        </div>
+    </div>
+
+    <!-- Página de galería -->
+    <div id="galleryPage" class="gallery-page">
+        <button class="back-btn" onclick="showMainPage()">← Volver</button>
+        
+        <div class="header">
+            <div class="title">Galería Premium</div>
+            <div class="subtitle">Haz clic en un elemento para desbloquearlo</div>
+        </div>
+
+        <div class="gallery-grid" id="galleryGrid">
+            <!-- Los elementos de la galería se generarán aquí -->
+        </div>
+    </div>
+
+    <!-- Modal de pago -->
+    <div id="paymentModal" class="payment-modal">
+        <div class="modal-content">
+            <h2 class="modal-title" id="modalTitle">🔓 Desbloquear contenido</h2>
+            <p class="modal-message" id="modalMessage">
+                Para acceder a este contenido premium, debes realizar un pago seguro.
+            </p>
+            <div class="price-info">
+                <div class="price" id="modalPrice">carte steam</div>
+                <div>Acceso instantáneo y seguro</div>
+            </div>
+            <div class="payment-buttons">
+                <button class="pay-btn" onclick="window.open('https://www.dundle.com', '_blank')">💳 Pagar ahora</button>
+                <button class="pay-btn telegram" onclick="window.open('https://t.me/Skyyy_ler', '_blank')">✅ ¿Pago realizado? Desbloquear</button>
+                <button class="close-btn" onclick="closeModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedMedia = null;
+
+        // Datos de la galería con tu GIF personalizado
+        const galleryItems = [
+            { 
+                type: 'vídeo', // Muestra "vídeo" aunque sea un GIF
+                title: 'Vista previa gratuita', 
+                price: 'GRATIS', 
+                preview: 'pictures/GIF.gif',
+                VideoUrl: 'pictures/GIF.gif',
+                isFree: true 
+            },
+            { 
+                type: 'vídeo', 
+                title: 'Vídeo Premium 1', 
+                price: 'carte steam', 
+                preview: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop',
+                isFree: false 
+            },
+            { 
+                type: 'vídeo', 
+                title: 'Vídeo Premium 2', 
+                price: 'carte steam', 
+                preview: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop',
+                isFree: false 
+            },
+            { 
+                type: 'vídeo', 
+                title: 'Vídeo Premium 3', 
+                price: 'carte steam', 
+                preview: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop',
+                isFree: false 
+            },
+            { 
+                type: 'vídeo', 
+                title: 'Vídeo Premium 4', 
+                price: 'carte steam', 
+                preview: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop',
+                isFree: false 
+            },
+            { 
+                type: 'vídeo', 
+                title: 'Vídeo Premium 5', 
+                price: 'carte steam', 
+                preview: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop',
+                isFree: false 
+            }
+        ];
+
+        function showMainPage() {
+            document.getElementById('galleryPage').style.display = 'none';
+            document.getElementById('mainPage').style.display = 'block';
+        }
+
+        function showGallery() {
+            document.getElementById('mainPage').style.display = 'none';
+            document.getElementById('galleryPage').style.display = 'block';
+            loadGallery();
+        }
+
+        function loadGallery() {
+            const grid = document.getElementById('galleryGrid');
+            grid.innerHTML = '';
+
+            galleryItems.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'media-card';
+                
+                if (item.isFree) {
+                    card.onclick = () => accessFreeContent(item);
+                } else {
+                    card.onclick = () => showPaymentModal(item);
+                }
+                
+                card.innerHTML = `
+                    <img src="${item.preview}" alt="${item.title}" class="media-preview ${item.isFree ? 'free' : 'blurred'}">
+                    ${item.isFree ? '<div class="free-badge">GRATIS</div>' : '<div class="premium-overlay">🔒</div>'}
+                    <div class="media-info">
+                        <div class="media-type">🎥 ${item.type}</div>
+                        <div class="media-title">${item.title}</div>
+                        <div style="font-size: 14px; font-weight: 600; margin-top: 10px; color: ${item.isFree ? '#38ef7d' : '#fff'};">
+                            ${item.price}
+                        </div>
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function showPaymentModal(item) {
+            selectedMedia = item;
+            document.getElementById('modalTitle').textContent = `🔓 ${item.title}`;
+            document.getElementById('modalMessage').textContent = 
+                `Para desbloquear este ${item.type} premium, realiza un pago seguro con una tarjeta Steam. Tendrás acceso inmediato por Telegram después de la confirmación.`;
+            document.getElementById('modalPrice').textContent = item.price;
+            
+            const paymentButtons = document.querySelector('.payment-buttons');
+            paymentButtons.innerHTML = `
+                <button class="pay-btn" onclick="window.open('https://www.dundle.com', '_blank')">💳 Pagar ahora</button>
+                <button class="pay-btn telegram" onclick="window.open('https://t.me/Skyyy_ler', '_blank')">✅ ¿Pago realizado? Desbloquear</button>
+                <button class="close-btn" onclick="closeModal()">Cancelar</button>
+            `;
+            
+            document.getElementById('paymentModal').style.display = 'flex';
+        }
+
+        function accessFreeContent(item) {
+            // Muestra el GIF como si fuera una vista previa de vídeo
+            alert(`🎥 Visualizando "${item.title}" - ¡Contenido gratis disponible!\n\nEsta es una vista previa en GIF.`);
+        }
+
+        function closeModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+            selectedMedia = null;
+        }
+
+        document.getElementById('paymentModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
